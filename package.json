@@ -1,0 +1,30 @@
+{
+  "name": "rpp2205-stacey-review-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "reviewService": "nodemon service/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpp2205-sdc-taklamakan/rpp2205-stacey-review-service.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rpp2205-sdc-taklamakan/rpp2205-stacey-review-service/issues"
+  },
+  "homepage": "https://github.com/rpp2205-sdc-taklamakan/rpp2205-stacey-review-service#readme",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.20"
+  }
+}
