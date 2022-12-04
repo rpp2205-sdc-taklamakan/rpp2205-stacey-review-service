@@ -1,4 +1,4 @@
-const Models = require('./models.js');
+const Models = require('./models');
 
 module.exports = {
   getReviews: (req, res) => {
@@ -55,7 +55,6 @@ module.exports = {
           id: element.id,
           value: element['AVG(c.value)']
         };
-        console.log(data.characteristics.Quality);
       });
       data.characteristics.productId = productId;
       recommend.forEach((element) => {

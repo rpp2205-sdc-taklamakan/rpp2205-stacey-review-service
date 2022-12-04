@@ -1,4 +1,4 @@
-var db = require('./db');
+var db = require('../database/db');
 
 module.exports = {
   findReviews: (productId, callback) => {
