@@ -2,39 +2,52 @@ const Models = require('./models');
 
 module.exports = {
   getReviews: (req, res) => {
-    var productId = 2.;
+    var productId = req.query.product_id;
+    var count = req.query.count || 5;
+    var sort = req.query.sort || 'relevant';
 
-    Models.findReviews(productId, (err, results) => {
-      if(err) {
-        res.status(500).send(err);
-      }
-      res.status(200).send(results);
-    });
-        // var data = {
-        //   body: results[0].body,
-        //   data: results[0].data,
-        //   photos: results[1]
-        //   rating: results.[0],
-        //   rating: results[0].rating,
-        //   recommend: results[0].recommended,
-        //   response: results[0].response,
-        //   review_id: results[0].review_id,
-        //   summary: results[0].summary,
-        // }
+    var results = [];
+
+    Models.findReviews(productId, count, sort)
+    .then((reviews) => {
+
+      var arr = reviews[0].map((element) => {
+        return {
+          body: element.body.replace(/\"/g, ""),
+          date: new Date(parseInt(element.date) * 1000),
+          helpfulness: element.helpfulness,
+          photos: element.photos,
+          rating: element.rating,
+          recommend: element.recommended.replace(/\"/g, ""),
+          response: element.response.replace(/\"/g, ""),
+          review_id: element.id,
+          summary: element.summary.replace(/\"/g, "")
+        }
+      })
+
+      // reviews[0].forEach((element) => {
+      //   results.push({
+      //     body: element.body.replace(/\"/g, ""),
+      //     date: new Date(parseInt(element.date) * 1000),
+      //     helpfulness: element.helpfulness,
+      //     photos: element.photos,
+      //     rating: element.rating,
+      //     recommend: element.recommended.replace(/\"/g, ""),
+      //     response: element.response.replace(/\"/g, ""),
+      //     review_id: element.id,
+      //     summary: element.summary.replace(/\"/g, "")
+      //   });
+      // });
+
+      res.status(200).send({count: count, page: 1, product: product_id, results: arr});
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    })
   },
   getMeta: (req, res) => {
-    // var data = {
-    //   characteristics: {
-    //     Comfort: {id: , value:},
-    //     Fit: {id: , value:},
-    //     Length: {id: , value:},
-    //     Quality: {id: , value:},
-    //     product_id: ,
-    //   },
-    //   ratings: {1:, 2:, 3:, 4:, 5:},
-    //   recommend: {false:, true: }
-    // }
-    var productId = 2;
+
+    var productId = req.query.product_id;
 
     var data = {};
     data.characteristics = {};
@@ -77,14 +90,32 @@ module.exports = {
       name: 'Jules Cobb',
       email: 'jules@gmail.com'
     }
-    Models.insertReview(req.body);
+    Models.insertReview(req.body)
+    .then(() => {
+      res.status(201);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    })
   },
 
   helpful: (req, res) => {
-
+    Models.markHelpful(productId)
+    .then((results) => {
+      res.status(204);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    })
   },
 
   report: (req, res) => {
-
+    Models.reported(productId)
+      .then(() => {
+        res.status(204);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      })
   }
 }

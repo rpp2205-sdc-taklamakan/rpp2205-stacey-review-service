@@ -17,9 +17,9 @@ app.get('/reviews/meta', Controller.getMeta); //DONE
 
 app.post('/reviews', Controller.postReview);
 
-app.put('/reviews/:review_id/helpful', Controller.helpful);
+app.put('/reviews/:review_id/helpful', Controller.helpful); //DONE
 
-app.put('/reviews/:review_id/report', Controller.report);
+app.put('/reviews/:review_id/report', Controller.report); //DONE
 
 
 app.listen(port, () => {
