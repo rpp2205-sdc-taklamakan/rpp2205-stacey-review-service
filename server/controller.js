@@ -103,7 +103,6 @@ module.exports = {
   report: (req, res) => {
     Models.reported(req.params.review_id)
       .then((results) => {
-        console.log(results);
         res.sendStatus(204);
       })
       .catch((err) => {

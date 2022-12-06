@@ -25,3 +25,5 @@ app.put('/reviews/:review_id/report', Controller.report); //DONE
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+module.exports = app;
