@@ -19,9 +19,11 @@ module.exports = {
       order = 'date DESC'
     }
 
+    //return db.queryAsync(`SELECT * FROM reviews WHERE product_id = 2 GROUP BY id ORDER BY ${order} LIMIT ${count}`)
+
     return db.queryAsync(`SELECT reviews.id, reviews.product_id, reviews.rating, reviews.date, reviews.summary, reviews.body, reviews.recommended,
-    reviews.response, reviews.reviewer_name, reviews.helpfulness, JSON_ARRAYAGG(JSON_OBJECT('id', photos.id, 'value', JSON_UNQUOTE(photos.url))) AS photos FROM reviews LEFT JOIN photos ON reviews.id = photos.review_id WHERE
-    reviews.product_id = 2 GROUP BY reviews.id ORDER BY ${order} LIMIT ${count};`);
+    reviews.response, reviews.reviewer_name, reviews.helpfulness, JSON_ARRAYAGG(JSON_OBJECT('id', photos.id, 'url', JSON_UNQUOTE(photos.url))) AS photos FROM reviews LEFT JOIN photos ON reviews.id = photos.review_id WHERE
+    reviews.product_id = ${productId} AND reviews.reported != 'true' GROUP BY reviews.id ORDER BY ${order} LIMIT ${count};`);
 
   },
   findPhotos: (reviewId) => {
@@ -37,7 +39,11 @@ module.exports = {
     return Promise.all(promises);
   },
   insertReview: (productId, obj) => {
-    db.queryAsync(`INSERT INTO reviews (null, )`)
+    db.queryAsync(`INSERT INTO reviews (null, ${productId}, ${obj.rating}, ${new Date()}, ${obj.summary}, ${obj.body}, ${obj.recommended}, 'false',
+      ${obj.name}, ${obj.email}`)
+      .then(() => {
+        return db.queryAsync('SELECT LAST_INSERT_ID();')
+      })
   },
 
   markHelpful: (reviewId) => {
@@ -45,6 +51,6 @@ module.exports = {
   },
 
   reported: (reviewId) => {
-    return db.queryAsync(`UPDATE reviews SET reported = 'true' WHERE id = ${reviewId}`)
+    return db.queryAsync(`UPDATE reviews SET reported = 'true' WHERE id = ${reviewId}`);
   }
-};
+}

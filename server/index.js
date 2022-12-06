@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/reviews', Controller.getReviews);
+app.get('/reviews', Controller.getReviews); //DONE
 
 app.get('/reviews/meta', Controller.getMeta); //DONE
 

@@ -7,39 +7,30 @@ module.exports = {
     var sort = req.query.sort || 'relevant';
 
     var results = [];
+    var result = {count: count, page: 1, product: productId};
 
     Models.findReviews(productId, count, sort)
     .then((reviews) => {
+      reviews[0].forEach((element) => {
+        // if(JSON.parse(element.photos.id === null)) {
+        //   element.photos = [];
+        // }
 
-      var arr = reviews[0].map((element) => {
-        return {
+        results.push({
           body: element.body.replace(/\"/g, ""),
           date: new Date(parseInt(element.date) * 1000),
           helpfulness: element.helpfulness,
-          photos: element.photos,
+          photos: JSON.parse(element.photos),
           rating: element.rating,
-          recommend: element.recommended.replace(/\"/g, ""),
-          response: element.response.replace(/\"/g, ""),
+          recommend: JSON.parse(element.recommended.replace(/\"/g, "")),
+          response: JSON.parse(element.response),
           review_id: element.id,
           summary: element.summary.replace(/\"/g, "")
-        }
-      })
+        });
+      });
 
-      // reviews[0].forEach((element) => {
-      //   results.push({
-      //     body: element.body.replace(/\"/g, ""),
-      //     date: new Date(parseInt(element.date) * 1000),
-      //     helpfulness: element.helpfulness,
-      //     photos: element.photos,
-      //     rating: element.rating,
-      //     recommend: element.recommended.replace(/\"/g, ""),
-      //     response: element.response.replace(/\"/g, ""),
-      //     review_id: element.id,
-      //     summary: element.summary.replace(/\"/g, "")
-      //   });
-      // });
-
-      res.status(200).send({count: count, page: 1, product: product_id, results: arr});
+      result.results = results;
+      res.status(200).json(result);
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -52,7 +43,7 @@ module.exports = {
     var data = {};
     data.characteristics = {};
     data.ratings = {};
-    data.recommend = {};
+    data.recommended = {};
 
     Models.findMeta(productId)
     .then((results) => {
@@ -71,7 +62,7 @@ module.exports = {
       });
       data.characteristics.productId = productId;
       recommend.forEach((element) => {
-        data.recommend[element.recommended] = element['COUNT(recommended)'];
+        data.recommended[element.recommended] = element['COUNT(recommended)'];
       });
       res.status(200).send(data);
     })
@@ -100,9 +91,9 @@ module.exports = {
   },
 
   helpful: (req, res) => {
-    Models.markHelpful(productId)
+    Models.markHelpful(req.params.review_id)
     .then((results) => {
-      res.status(204);
+      res.sendStatus(204);
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -110,9 +101,10 @@ module.exports = {
   },
 
   report: (req, res) => {
-    Models.reported(productId)
-      .then(() => {
-        res.status(204);
+    Models.reported(req.params.review_id)
+      .then((results) => {
+        console.log(results);
+        res.sendStatus(204);
       })
       .catch((err) => {
         res.status(500).send(err);
