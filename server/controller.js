@@ -47,20 +47,21 @@ module.exports = {
 
     Models.findMeta(productId)
     .then((results) => {
-      var ratings = results[0];
-      var chars = results[1];
-      var recommend = results[2];
+      var ratings = results[0][0];
+      var chars = results[1][0];
+      var recommend = results[2][0];
 
-      ratings[0].forEach((element) => {
+      ratings.forEach((element) => {
         data.ratings[element.rating] = element['AVG(rating)'];
       });
-      chars[0].forEach((element) => {
+      chars.forEach((element) => {
         data.characteristics[element.name.replace(/\"/g, "")] = {
           id: element.id,
           value: element['AVG(c.value)']
         };
       });
       data.characteristics.productId = productId;
+      
       recommend.forEach((element) => {
         data.recommended[element.recommended] = element['COUNT(recommended)'];
       });
