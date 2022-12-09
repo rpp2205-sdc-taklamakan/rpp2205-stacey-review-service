@@ -8,7 +8,8 @@
   },
   "scripts": {
     "reviewService": "nodemon server/index.js",
-    "testReviewService": "nyc mocha"
+    "testReviewService": "nyc mocha",
+    "k6": "k6 run test/k6script.js"
   },
   "repository": {
     "type": "git",
