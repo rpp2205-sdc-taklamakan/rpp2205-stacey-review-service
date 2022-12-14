@@ -16,7 +16,7 @@ CREATE TABLE reviews (
   response VARCHAR(255),
   helpfulness int,
   INDEX productId (product_id, id)
-)
+);
 
 CREATE TABLE photos (
   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -25,14 +25,14 @@ CREATE TABLE photos (
   INDEX reviewId (review_id, id)
   FOREIGN KEY (review_id)
     REFERENCES reviews(id)
-)
+);
 
 CREATE TABLE characteristic_ids (
   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   product_id int,
   name VARCHAR(255),
   INDEX productId (product_id, id)
-)
+);
 
 CREATE TABLE characteristics (
   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -44,7 +44,7 @@ CREATE TABLE characteristics (
     REFERENCES characteristics(id),
   FOREIGN KEY (review_id)
     REFERENCES reviews(id)
-)
+);
 
 
 -- LOAD DATA INFILE ''
