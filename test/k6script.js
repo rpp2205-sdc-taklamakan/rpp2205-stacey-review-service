@@ -1,20 +1,6 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-// export default function () {
-//   http.get('https://test.k6.io');
-//   sleep(1);
-// }
-
-const only200Callback = http.expectedStatuses(200);
-http.setResponseCallback(only200Callback);
-
-// export const options = {
-//   stages: [
-//     {duration: '30s', target: 1000}
-//     //{duration: '30s', target: 10}
-//   ]
-// }
 export let options = {
   vus: 1000,
   duration: "30s"

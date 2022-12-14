@@ -38,9 +38,12 @@ module.exports = {
     ];
     return Promise.all(promises);
   },
-  insertReview: (productId, obj) => {
-    db.queryAsync(`INSERT INTO reviews (null, ${productId}, ${obj.rating}, ${new Date()}, ${obj.summary}, ${obj.body}, ${obj.recommended}, 'false',
-      ${obj.name}, ${obj.email}`)
+  insertReview: (productId, obj, photos) => {
+    db.queryAsync(`BEGIN;
+    INSERT INTO reviews (null, ${productId}, ${obj.rating}, ${new Date()}, ${obj.summary}, ${obj.body}, ${obj.recommend}, 'false',
+      ${obj.name}, ${obj.email}, ${obj.response}, 0;
+      SET last_id_in_reviews = LAST_INSERT_ID();
+      INSERT INTO photos VALUES${photos}`)
       .then(() => {
         return db.queryAsync('SELECT LAST_INSERT_ID();')
       })

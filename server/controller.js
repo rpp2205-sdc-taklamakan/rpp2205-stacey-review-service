@@ -61,7 +61,7 @@ module.exports = {
         };
       });
       data.characteristics.productId = productId;
-      
+
       recommend.forEach((element) => {
         data.recommended[element.recommended] = element['COUNT(recommended)'];
       });
@@ -82,7 +82,10 @@ module.exports = {
       name: 'Jules Cobb',
       email: 'jules@gmail.com'
     }
-    Models.insertReview(req.body)
+    var photoValues = req.body.photos.map((element) => {
+      return ` (null, last_id_in_reviews, ${element})`
+    });
+    Models.insertReview(req.query.product_id, req.body, photoValues.join())
     .then(() => {
       res.status(201);
     })
