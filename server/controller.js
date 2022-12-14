@@ -2,63 +2,68 @@ const Models = require('./models');
 
 module.exports = {
   getReviews: (req, res) => {
-    var productId = 2.;
+    var productId = req.query.product_id;
+    var count = req.query.count || 5;
+    var sort = req.query.sort || 'relevant';
 
-    Models.findReviews(productId, (err, results) => {
-      if(err) {
-        res.status(500).send(err);
-      }
-      res.status(200).send(results);
-    });
-        // var data = {
-        //   body: results[0].body,
-        //   data: results[0].data,
-        //   photos: results[1]
-        //   rating: results.[0],
-        //   rating: results[0].rating,
-        //   recommend: results[0].recommended,
-        //   response: results[0].response,
-        //   review_id: results[0].review_id,
-        //   summary: results[0].summary,
+    var results = [];
+    var result = {count: count, page: 1, product: productId};
+
+    Models.findReviews(productId, count, sort)
+    .then((reviews) => {
+      reviews[0].forEach((element) => {
+        // if(JSON.parse(element.photos.id === null)) {
+        //   element.photos = [];
         // }
+
+        results.push({
+          body: element.body.replace(/\"/g, ""),
+          date: new Date(parseInt(element.date) * 1000),
+          helpfulness: element.helpfulness,
+          photos: JSON.parse(element.photos),
+          rating: element.rating,
+          recommend: JSON.parse(element.recommended.replace(/\"/g, "")),
+          response: JSON.parse(element.response),
+          review_id: element.id,
+          summary: element.summary.replace(/\"/g, "")
+        });
+      });
+
+      result.results = results;
+      res.status(200).json(result);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    })
   },
   getMeta: (req, res) => {
-    // var data = {
-    //   characteristics: {
-    //     Comfort: {id: , value:},
-    //     Fit: {id: , value:},
-    //     Length: {id: , value:},
-    //     Quality: {id: , value:},
-    //     product_id: ,
-    //   },
-    //   ratings: {1:, 2:, 3:, 4:, 5:},
-    //   recommend: {false:, true: }
-    // }
-    var productId = 2;
+
+    var productId = req.query.product_id;
 
     var data = {};
     data.characteristics = {};
     data.ratings = {};
-    data.recommend = {};
+    data.recommended = {};
 
     Models.findMeta(productId)
     .then((results) => {
-      var ratings = results[0];
-      var chars = results[1];
-      var recommend = results[2];
+      var ratings = results[0][0];
+      var chars = results[1][0];
+      var recommend = results[2][0];
 
-      ratings[0].forEach((element) => {
+      ratings.forEach((element) => {
         data.ratings[element.rating] = element['AVG(rating)'];
       });
-      chars[0].forEach((element) => {
+      chars.forEach((element) => {
         data.characteristics[element.name.replace(/\"/g, "")] = {
           id: element.id,
           value: element['AVG(c.value)']
         };
       });
       data.characteristics.productId = productId;
+
       recommend.forEach((element) => {
-        data.recommend[element.recommended] = element['COUNT(recommended)'];
+        data.recommended[element.recommended] = element['COUNT(recommended)'];
       });
       res.status(200).send(data);
     })
@@ -77,14 +82,35 @@ module.exports = {
       name: 'Jules Cobb',
       email: 'jules@gmail.com'
     }
-    Models.insertReview(req.body);
+    var photoValues = req.body.photos.map((element) => {
+      return ` (null, last_id_in_reviews, ${element})`
+    });
+    Models.insertReview(req.query.product_id, req.body, photoValues.join())
+    .then(() => {
+      res.status(201);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    })
   },
 
   helpful: (req, res) => {
-
+    Models.markHelpful(req.params.review_id)
+    .then((results) => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    })
   },
 
   report: (req, res) => {
-
+    Models.reported(req.params.review_id)
+      .then((results) => {
+        res.sendStatus(204);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      })
   }
 }

@@ -11,17 +11,19 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/reviews', Controller.getReviews);
+app.get('/reviews', Controller.getReviews); //DONE
 
 app.get('/reviews/meta', Controller.getMeta); //DONE
 
 app.post('/reviews', Controller.postReview);
 
-app.put('/reviews/:review_id/helpful', Controller.helpful);
+app.put('/reviews/:review_id/helpful', Controller.helpful); //DONE
 
-app.put('/reviews/:review_id/report', Controller.report);
+app.put('/reviews/:review_id/report', Controller.report); //DONE
 
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+module.exports = app;
