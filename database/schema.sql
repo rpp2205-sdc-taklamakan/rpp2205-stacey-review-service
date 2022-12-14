@@ -21,8 +21,8 @@ CREATE TABLE reviews (
 CREATE TABLE photos (
   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   review_id int,
-  url VARCHAR(255)
-  INDEX reviewId (review_id, id)
+  url VARCHAR(255),
+  INDEX reviewId (review_id, id),
   FOREIGN KEY (review_id)
     REFERENCES reviews(id)
 );
@@ -39,7 +39,7 @@ CREATE TABLE characteristics (
   characteristic_id int,
   review_id int,
   value int,
-  INDEX reviewId (review_id, id)
+  INDEX reviewId (review_id, id),
   FOREIGN KEY (characteristic_id)
     REFERENCES characteristics(id),
   FOREIGN KEY (review_id)
