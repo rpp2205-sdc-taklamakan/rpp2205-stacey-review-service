@@ -11,11 +11,8 @@ module.exports = {
 
     Models.findReviews(productId, count, sort)
     .then((reviews) => {
+      console.log(reviews);
       reviews[0].forEach((element) => {
-        // if(JSON.parse(element.photos.id === null)) {
-        //   element.photos = [];
-        // }
-
         results.push({
           body: element.body.replace(/\"/g, ""),
           date: new Date(parseInt(element.date) * 1000),
