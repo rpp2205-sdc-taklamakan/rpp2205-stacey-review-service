@@ -11,23 +11,23 @@ module.exports = {
 
     Models.findReviews(productId, count, sort)
     .then((reviews) => {
-      console.log(reviews);
-      reviews[0].forEach((element) => {
-        results.push({
-          body: element.body.replace(/\"/g, ""),
-          date: new Date(parseInt(element.date) * 1000),
-          helpfulness: element.helpfulness,
-          photos: JSON.parse(element.photos),
-          rating: element.rating,
-          recommend: JSON.parse(element.recommended.replace(/\"/g, "")),
-          response: JSON.parse(element.response),
-          review_id: element.id,
-          summary: element.summary.replace(/\"/g, "")
-        });
-      });
+      // console.log(reviews);
+      // reviews[0].forEach((element) => {
+      //   results.push({
+      //     body: element.body.replace(/\"/g, ""),
+      //     date: new Date(parseInt(element.date) * 1000),
+      //     helpfulness: element.helpfulness,
+      //     photos: JSON.parse(element.photos),
+      //     rating: element.rating,
+      //     recommend: JSON.parse(element.recommended.replace(/\"/g, "")),
+      //     response: JSON.parse(element.response),
+      //     review_id: element.id,
+      //     summary: element.summary.replace(/\"/g, "")
+      //   });
+      // });
 
-      result.results = results;
-      res.status(200).json(reviews);
+      //result.results = results;
+      res.status(200).json(reviews[0]);
     })
     .catch((err) => {
       res.status(500).send(err);
