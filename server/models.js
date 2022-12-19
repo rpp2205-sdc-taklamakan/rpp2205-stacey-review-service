@@ -2,28 +2,66 @@ var db = require('../database/db');
 
 module.exports = {
   findReviews: (productId, count, sort) => {
-    var photosArr = [];
-    var results = [];
-
-    var results = [];
-    var innerObj = {};
-
-    var order = '';
-    if(sort === 'relevant') {
-      order = 'reviews.helpfulness DESC, date DESC';
-    }
-    if(sort === 'helpful') {
-      order = 'reviews.helpfulness DESC';
-    }
-    if(sort === 'newest') {
-      order = 'date DESC'
-    }
 
     //return db.queryAsync(`SELECT * FROM reviews WHERE product_id = 2 GROUP BY id ORDER BY ${order} LIMIT ${count}`)
 
-    return db.queryAsync(`SELECT reviews.id, reviews.product_id, reviews.rating, reviews.date, reviews.summary, reviews.body, reviews.recommended,
-    reviews.response, reviews.reviewer_name, reviews.helpfulness, JSON_ARRAYAGG(JSON_OBJECT('id', photos.id, 'url', JSON_UNQUOTE(photos.url))) AS photos FROM reviews LEFT JOIN photos ON reviews.id = photos.review_id WHERE
-    reviews.product_id = ${productId} AND reviews.reported != 'true' GROUP BY reviews.id ORDER BY ${order} LIMIT ${count};`);
+    return db.queryAsync(`SELECT
+    JSON_PRETTY(
+      JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'body', body,
+            'date', from_unixtime(date/1000),
+            'helpfulness', helpfulness,
+            'rating', rating,
+            'recommend', recommend,
+            'response', response,
+            'review_id', review_id,
+            'reviewer_name', reviewer_name,
+            'summary', summary,
+            'photos', photos
+          )
+        )
+    ) AS results
+
+    FROM (
+      SELECT
+              r.body AS body,
+              r.date AS date,
+              r.helpfulness AS helpfulness,
+              r.rating AS rating,
+              r.recommended AS recommend,
+              r.response AS response,
+              r.id AS review_id,
+              r.reviewer_name AS reviewer_name,
+              r.summary AS summary,
+              JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'id', p.id,
+            'url', p.url
+          )
+        ) AS photos
+      FROM reviews r JOIN photos p ON r.id = p.review_id
+          WHERE r.product_id = 2 AND r.reported != 'true'
+          GROUP BY r.id
+          UNION
+          SELECT
+              r.body,
+              r.date,
+              r.helpfulness,
+              r.rating,
+              r.recommended,
+              r.response,
+              r.id,
+              r.reviewer_name,
+              r.summary,
+              JSON_ARRAY()
+      FROM reviews r LEFT OUTER JOIN photos p ON r.id = p.review_id
+          WHERE r.product_id = 2 AND r.reported != 'true' AND p.url IS NULL
+    ) AS p;`);
+
+    // return db.queryAsync(`SELECT reviews.id, reviews.product_id, reviews.rating, reviews.date, reviews.summary, reviews.body, reviews.recommended,
+    // reviews.response, reviews.reviewer_name, reviews.helpfulness, JSON_ARRAYAGG(JSON_OBJECT('id', photos.id, 'url', JSON_UNQUOTE(photos.url))) AS photos FROM reviews LEFT JOIN photos ON reviews.id = photos.review_id WHERE
+    // reviews.product_id = ${productId} AND reviews.reported != 'true' GROUP BY reviews.id ORDER BY ${order} LIMIT ${count};`);
 
   },
   findPhotos: (reviewId) => {

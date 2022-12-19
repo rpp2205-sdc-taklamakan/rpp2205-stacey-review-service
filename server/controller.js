@@ -1,33 +1,35 @@
 const Models = require('./models');
 
+var sortReviews = (reviews, count, sort) => {
+  var sortby;
+  if(sort === 'relevant') {
+    sortby = 'id';
+  } else if(sort === 'newest') {
+    sortby = 'date';
+  } else {
+    sortby = 'helpfulness';
+  }
+  reviews.sort((a, b) => {
+    return (b[sortby] - a [sortby]);
+  });
+  return reviews.slice(0, count);
+}
+
 module.exports = {
   getReviews: (req, res) => {
     var productId = req.query.product_id;
     var count = req.query.count || 5;
     var sort = req.query.sort || 'relevant';
 
-    var results = [];
-    var result = {count: count, page: 1, product: productId};
-
     Models.findReviews(productId, count, sort)
     .then((reviews) => {
-      // console.log(reviews);
-      // reviews[0].forEach((element) => {
-      //   results.push({
-      //     body: element.body.replace(/\"/g, ""),
-      //     date: new Date(parseInt(element.date) * 1000),
-      //     helpfulness: element.helpfulness,
-      //     photos: JSON.parse(element.photos),
-      //     rating: element.rating,
-      //     recommend: JSON.parse(element.recommended.replace(/\"/g, "")),
-      //     response: JSON.parse(element.response),
-      //     review_id: element.id,
-      //     summary: element.summary.replace(/\"/g, "")
-      //   });
-      // });
-
-      //result.results = results;
-      res.status(200).json(reviews[0]);
+      var result = {
+        count: count,
+        page: 1,
+        product: productId,
+        results: sortReviews(JSON.parse(reviews[0][0].results), count, sort)
+      }
+      res.status(200).json(result);
     })
     .catch((err) => {
       res.status(500).send(err);
