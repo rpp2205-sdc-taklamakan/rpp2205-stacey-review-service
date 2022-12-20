@@ -14,7 +14,7 @@ app.get('/loaderio-1fc425625de99b0b2d3a4847dd646271', (req, res) => {
   if(err) {
     res.status(500).send(err);
   }
-  res.status(200).send('../loaderio-1fc425625de99b0b2d3a4847dd646271.txt');
+  res.status(200).send('loaderio-1fc425625de99b0b2d3a4847dd646271');
 });
 
 app.get('/reviews', Controller.getReviews); //DONE
