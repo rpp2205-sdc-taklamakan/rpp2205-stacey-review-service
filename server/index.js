@@ -8,8 +8,9 @@ const app = express();
 const port = 3001;
 const Controller = require('./controller');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
-
+app.use(morgan('tiny'));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
