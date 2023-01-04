@@ -3,6 +3,7 @@ const app = express();
 const port = 3001;
 const Controller = require('./controller');
 const bodyParser = require('body-parser');
+const newrelic = require('newrelic');
 
 app.use(bodyParser.json());
 
