@@ -39,31 +39,14 @@ module.exports = {
 
     var productId = req.query.product_id;
 
-    var data = {};
-    data.characteristics = {};
-    data.ratings = {};
-    data.recommended = {};
-
     Models.findMeta(productId)
     .then((results) => {
-      var ratings = results[0][0];
-      var chars = results[1][0];
-      var recommend = results[2][0];
-
-      ratings.forEach((element) => {
-        data.ratings[element.rating] = element['AVG(rating)'];
-      });
-      chars.forEach((element) => {
-        data.characteristics[element.name.replace(/\"/g, "")] = {
-          id: element.id,
-          value: element['AVG(c.value)']
-        };
-      });
-      data.characteristics.productId = productId;
-
-      recommend.forEach((element) => {
-        data.recommended[element.recommended] = element['COUNT(recommended)'];
-      });
+      var data = {
+        characteristics: results[0][0].results,
+        ratings: results[0][1].results,
+        recommended: results[0][2].results,
+        product_id: productId
+      }
       res.status(200).send(data);
     })
     .catch((err) => {

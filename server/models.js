@@ -2,9 +2,6 @@ var db = require('../database/db');
 
 module.exports = {
   findReviews: (productId, count, sort) => {
-
-    //return db.queryAsync(`SELECT * FROM reviews WHERE product_id = 2 GROUP BY id ORDER BY ${order} LIMIT ${count}`)
-
     return db.queryAsync(`SELECT
     JSON_PRETTY(
       JSON_ARRAYAGG(
@@ -41,7 +38,7 @@ module.exports = {
           )
         ) AS photos
       FROM reviews r JOIN photos p ON r.id = p.review_id
-          WHERE r.product_id = 2 AND r.reported != 'true'
+          WHERE r.product_id = ${productId} AND r.reported != 'true'
           GROUP BY r.id
           UNION
           SELECT
@@ -56,12 +53,8 @@ module.exports = {
               r.summary,
               JSON_ARRAY()
       FROM reviews r LEFT OUTER JOIN photos p ON r.id = p.review_id
-          WHERE r.product_id = 2 AND r.reported != 'true' AND p.url IS NULL
+          WHERE r.product_id = ${productId} AND r.reported != 'true' AND p.url IS NULL
     ) AS p;`);
-
-    // return db.queryAsync(`SELECT reviews.id, reviews.product_id, reviews.rating, reviews.date, reviews.summary, reviews.body, reviews.recommended,
-    // reviews.response, reviews.reviewer_name, reviews.helpfulness, JSON_ARRAYAGG(JSON_OBJECT('id', photos.id, 'url', JSON_UNQUOTE(photos.url))) AS photos FROM reviews LEFT JOIN photos ON reviews.id = photos.review_id WHERE
-    // reviews.product_id = ${productId} AND reviews.reported != 'true' GROUP BY reviews.id ORDER BY ${order} LIMIT ${count};`);
 
   },
   findPhotos: (reviewId) => {
@@ -69,12 +62,19 @@ module.exports = {
   },
 
   findMeta: (productId) => {
-    var promises = [
-      db.queryAsync(`SELECT rating, AVG(rating) FROM reviews WHERE product_id = ${productId} GROUP BY rating`),
-      db.queryAsync(`SELECT charID.name, charID.id, AVG(c.value) FROM characteristics c INNER JOIN characteristic_ids charID on (c.characteristic_id = charID.product_id) WHERE charID.product_id = ${productId} GROUP BY charID.name, charID.id`),
-      db.queryAsync(`SELECT recommended, COUNT(recommended) FROM reviews WHERE product_id = ${productId} GROUP BY recommended`)
-    ];
-    return Promise.all(promises);
+    return db.queryAsync(`SELECT JSON_PRETTY(JSON_OBJECTAGG(name, chars)) AS results FROM (
+      SELECT charID.name AS name,
+        JSON_OBJECT('id', charID.id, 'value', AVG(c.value)) AS chars
+            FROM characteristics c INNER JOIN characteristic_ids charID on
+        (c.characteristic_id = charID.product_id)
+        WHERE charID.product_id = ${productId} GROUP BY charID.name, charID.id) AS p
+    UNION
+    SELECT JSON_PRETTY(JSON_OBJECTAGG(rating, averages)) AS ratings FROM (
+    SELECT rating as rating, AVG(rating) as averages FROM reviews WHERE product_id = ${productId} GROUP BY rating) AS q
+    UNION
+    SELECT JSON_PRETTY(JSON_OBJECTAGG(r, c)) AS recommended FROM (
+      SELECT recommended as r, COUNT(recommended) as c FROM reviews WHERE product_id = ${productId} GROUP BY recommended) AS r;`);
+
   },
   insertReview: (productId, obj, photos) => {
     db.queryAsync(`BEGIN;
