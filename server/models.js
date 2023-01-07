@@ -68,10 +68,10 @@ module.exports = {
             FROM characteristics c INNER JOIN characteristic_ids charID on
         (c.characteristic_id = charID.product_id)
         WHERE charID.product_id = ${productId} GROUP BY charID.name, charID.id) AS p
-    UNION
+    UNION ALL
     SELECT JSON_PRETTY(JSON_OBJECTAGG(rating, averages)) AS ratings FROM (
     SELECT rating as rating, AVG(rating) as averages FROM reviews WHERE product_id = ${productId} GROUP BY rating) AS q
-    UNION
+    UNION ALL
     SELECT JSON_PRETTY(JSON_OBJECTAGG(r, c)) AS recommended FROM (
       SELECT recommended as r, COUNT(recommended) as c FROM reviews WHERE product_id = ${productId} GROUP BY recommended) AS r;`);
 

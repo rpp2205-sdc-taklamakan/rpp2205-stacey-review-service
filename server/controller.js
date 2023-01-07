@@ -2,6 +2,9 @@ const Models = require('./models');
 
 var sortReviews = (reviews, count, sort) => {
   var sortby;
+  if(reviews === null) {
+    return [];
+  }
   if(sort === 'relevant') {
     sortby = 'id';
   } else if(sort === 'newest') {
@@ -13,7 +16,7 @@ var sortReviews = (reviews, count, sort) => {
     return (b[sortby] - a [sortby]);
   });
   return reviews.slice(0, count);
-}
+};
 
 module.exports = {
   getReviews: (req, res) => {
